@@ -58,3 +58,19 @@ body{min-height:100vh;padding:10px;font-family:"Segoe UI",system-ui,sans-serif;b
 #onb{display:none;margin:80px auto;padding:16px 44px;font:700 20px inherit;font-family:inherit;border:0;border-radius:14px;background:#fff;color:#07224f;cursor:pointer;box-shadow:0 6px 0 #e4690a}
 .offm #lcd,.offm .grid,.offm .chips{display:none}.offm #onb{display:block}
 @media(prefers-reduced-motion:reduce){.rip,.car{animation:none}.rip{display:none}}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 2px;line-height:1.15;font-size:.92em}
+.fr>span{padding:0 3px}.fr>span:first-child{border-bottom:1.5px solid currentColor}
+sup{font-size:.7em;line-height:0}
+.rad{white-space:nowrap}.vin{border-top:1.5px solid currentColor;padding:0 2px;margin-left:1px}
+#expr{line-height:1.5}#res{line-height:1.25}
+#mv{display:none;flex:1;min-height:0;overflow:auto;padding:4px 6px;font:12px "Cascadia Mono",Consolas,monospace;scrollbar-width:thin}
+#soft{display:none;grid-template-columns:repeat(6,1fr);gap:2px;background:#0b3070;padding:2px}
+#soft div{background:#e8eefb;color:#06142f;text-align:center;font:600 10px/17px "Segoe UI",sans-serif;border-radius:2px;min-height:17px;cursor:pointer;white-space:nowrap;overflow:hidden}
+#soft div:empty{background:transparent;cursor:default}
+.tbl{width:100%;border-collapse:collapse}.tbl th{background:#dce8ff;font-weight:600;padding:1px 4px}
+.tbl td{border:1px solid #c5d3ee;padding:2px 5px;text-align:right;height:21px}
+.tbl td.sel{background:#ffd9b3;outline:2px solid #ff9a3d}.tbl td.hl2{background:#ffd9b3}
+.tbl th.rl{text-align:left;width:1%;white-space:nowrap}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:4px}
+.tile{border-radius:8px;background:#e8eefb;text-align:center;padding:8px 2px;font:600 11px "Segoe UI",sans-serif;cursor:pointer;border:2px solid transparent}
+.tile b{display:block;font-size:20px;color:#0b3070}.tile.soon{opacity:.45}.tile.hl{border-color:#ff9a3d;background:#fff3e6}
