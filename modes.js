@@ -26,13 +26,13 @@ function modeKey(a){if(!cur)return false;
 function modeInsert(t){if(cur&&cur.ins){fire(()=>cur.ins(t));paint()}}
 function modesShow(m){const on=MODE_SET.has(m);mv.style.display=on?"block":"none";soft.style.display=on?"grid":"none";
  if(!on){cur=null;return}
- if(m=="home")go(homeScreen());else if(m=="stat")go(statList());else if(m=="eq")go(eqMenu());else if(m=="base")go(baseScreen());else if(m=="mat")go(matList());else go(tableIn())}
+ if(m=="home")go(homeScreen());else if(m=="stat")go(statList());else if(m=="eq")go(eqMenu());else if(m=="base")go(baseScreen());else if(m=="mat")go(matList());else if(m=="dist")go(distMenu());else if(m=="ratio")go(ratioMenu());else if(m=="ineq")go(ineqMenu());else if(m=="sheet")go(sheetScreen());else go(tableIn())}
 
 // ---- editable grid used by Statistics, Equation and Table
-function mkGrid(o){const g={cols:o.cols,rl:o.rl,rows:o.rows,r:0,c:0,buf:null,max:o.max||99,text:o.text||(()=>false),grow:!!o.grow};
+function mkGrid(o){const g={cols:o.cols,rl:o.rl,rows:o.rows,r:0,c:0,buf:null,max:o.max||99,text:o.text||(()=>false),grow:!!o.grow,raw:!!o.raw,show:o.show};
  g.commit=()=>{if(g.buf===null)return true;const s=g.buf.trim();
   if(s===""){g.rows[g.r][g.c]="";g.buf=null;return true}
-  if(g.text(g.r,g.c)){g.rows[g.r][g.c]=s;g.buf=null;return true}
+  if(g.raw||g.text(g.r,g.c)){g.rows[g.r][g.c]=s;g.buf=null;return true}
   try{const v=evNum(s);if(!isFinite(v))throw 0;g.rows[g.r][g.c]=String(parseFloat(v.toPrecision(12)));g.buf=null;return true}
   catch(_){say("That entry is not a valid number");return false}};
  g.ins=t=>{if(g.buf===null)g.buf="";g.buf+=t};
@@ -41,8 +41,8 @@ function mkGrid(o){const g={cols:o.cols,rl:o.rl,rows:o.rows,r:0,c:0,buf:null,max
   if(r>=g.rows.length){if(g.grow&&g.rows.length<g.max)g.rows.push(g.cols.map(()=>""));else r=g.rows.length-1}g.r=r;g.c=c};
  g.render=()=>{const w=document.createElement("div"),t=document.createElement("table");t.className="tbl";const h=document.createElement("tr");
   if(g.rl)h.appendChild(mkc("th",""));g.cols.forEach(c=>h.appendChild(mkc("th",c)));t.appendChild(h);
-  g.rows.forEach((row,ri)=>{const tr=document.createElement("tr");if(g.rl)tr.appendChild(mkc("th",g.rl[ri]||"","rl"));
-   row.forEach((v,ci)=>{const sel=ri==g.r&&ci==g.c,td=mkc("td",sel&&g.buf!==null?g.buf+"▏":v,sel?"sel":"");if(g.text(ri,ci))td.style.textAlign="left";
+  g.rows.forEach((row,ri)=>{const tr=document.createElement("tr");if(g.rl)tr.appendChild(mkc("th",typeof g.rl=="function"?g.rl(ri):g.rl[ri]||"","rl"));
+   row.forEach((v,ci)=>{const sel=ri==g.r&&ci==g.c,td=mkc("td",sel&&g.buf!==null?g.buf+"▏":(g.show?g.show(ri,ci,v):v),sel?"sel":"");if(g.text(ri,ci))td.style.textAlign="left";
     td.onclick=()=>{g.commit();g.r=ri;g.c=ci;paint()};tr.appendChild(td)});t.appendChild(tr)});w.appendChild(t);return w};
  return g}
 function gridKeys(g,exit,across){return{ins:t=>g.ins(t),del:()=>g.del(),ac:()=>{g.buf=null},eq:()=>{if(!g.commit())return;if(!across)g.move(1,0);else if(g.c<g.cols.length-1)g.move(0,1);else if(g.r<g.rows.length-1){g.c=0;g.move(1,0)}},
@@ -54,12 +54,12 @@ function resScreen(o){return{render(){const t=document.createElement("table");t.
 const blank=(n,c)=>Array.from({length:n},()=>Array(c).fill(""));
 
 // ---- Main Menu
-const TILES=[["Run-Matrix","run"],["Statistics","stat"],["Graph","graph"],["Table","table"],["Equation","eq"],["Base-N","base"],["Matrix","mat"],["Distribution"],["Spreadsheet"]];
+const TILES=[["Run-Matrix","run"],["Statistics","stat"],["Graph","graph"],["Table","table"],["Equation","eq"],["Base-N","base"],["Matrix","mat"],["Distribution","dist"],["Spreadsheet","sheet"],["Ratio","ratio"],["Inequality","ineq"]];
 let hl=0;
 function homeScreen(){const open=i=>{const t=TILES[i];if(!t[1])return say(t[0]+" arrives in a later phase");setMode(t[1])};
  return{render(){const d=document.createElement("div");d.className="tiles";
-  TILES.forEach((t,i)=>{const e=document.createElement("div");e.className="tile"+(t[1]?"":" soon")+(i==hl?" hl":"");e.appendChild(mkc("b",i+1));e.append(t[0]);e.onclick=()=>{hl=i;open(i)};d.appendChild(e)});return d},
-  soft:[],ins(a){if(/^[1-9]$/.test(a)){hl=+a-1;open(hl)}},nav(m){hl=Math.max(0,Math.min(8,hl+{l:-1,r:1,u:-3,d:3}[m]))},eq(){open(hl)},exit(){setMode("run")}}}
+  TILES.forEach((t,i)=>{const e=document.createElement("div");e.className="tile"+(t[1]?"":" soon")+(i==hl?" hl":"");e.appendChild(mkc("b","1234567890•"[i]));e.append(t[0]);e.onclick=()=>{hl=i;open(i)};d.appendChild(e)});return d},
+  soft:[],ins(a){const k="1234567890.".indexOf(a);if(a.length==1&&k>=0&&k<TILES.length){hl=k;open(hl)}},nav(m){hl=Math.max(0,Math.min(TILES.length-1,hl+{l:-1,r:1,u:-3,d:3}[m]))},eq(){open(hl)},exit(){setMode("run")}}}
 
 // ---- Statistics
 const REGS={lin:"Linear  y=a+bx",quad:"Quadratic  y=ax²+bx+c",log:"Logarithmic  y=a+b·ln x",exp:"Exponential  y=a·e^(bx)",pow:"Power  y=a·x^b"};
@@ -165,3 +165,64 @@ function runOp(op,ks){fire(()=>{const A=ks[0]?mnum(ks[0]):null,B=ks[1]?mnum(ks[1
  else if(op=="scale"){const t=prompt("Multiply "+ks[0]+" by:");if(t===null)return;const k=evNum(t);if(!isFinite(k))throw new Error("Math Error");mres("k × "+ks[0],mScale(k,A))}
  else if(op=="pow"){const t=prompt("Power n (a whole number):","2");if(t===null)return;const n=evNum(t);if(!Number.isInteger(n))throw new Error("Math Error");mres(ks[0]+"^"+n,mPow(A,n))}
  else if(op=="id"){const t=prompt("Size n (1 to 6):","3");if(t===null)return;const n=parseInt(t);if(!(n>=1&&n<=6))throw new Error("Size must be 1 to 6");mres("Identity "+n+"×"+n,mIdentity(n))}})}
+
+// ---- generic pick list and input form (used by Distribution, Ratio and Inequality)
+function pickScreen(items,st,open,exit){return{render(){const t=document.createElement("table");t.className="tbl";
+  items.forEach((l,i)=>{const r=document.createElement("tr");r.appendChild(mkc("th",i+1,"rl"));const td=mkc("td",l,i==st.i?"hl2":"");td.style.textAlign="left";r.appendChild(td);r.onclick=()=>{st.i=i;open(i)};t.appendChild(r)});return t},
+  soft:[],ins(a){const n=/^[1-9]$/.test(a)?+a-1:-1;if(n>=0&&n<items.length){st.i=n;open(n)}},
+  nav(m){st.i=Math.max(0,Math.min(items.length-1,st.i+(m=="u"?-1:m=="d"?1:0)))},eq(){open(st.i)},exit}}
+function formScreen(def,back){const g=def.g||(def.g=mkGrid({cols:["value"],rl:def.rl,rows:def.defaults.map(d=>[d]),max:def.rl.length}));
+ return{render:()=>g.render(),soft:def.soft||["CALC"],
+  f(i){const v=g.rows.map(r=>r[0]===""?null:Number(r[0]));go(resScreen({back:()=>go(formScreen(def,back)),lines:def.run(i,v)}))},
+  ...gridKeys(g,back)}}
+const need=(v,i,n)=>{if(v[i]===null||!isFinite(v[i]))throw new Error("Enter "+n);return v[i]};
+const whole=(x,n)=>{if(!Number.isInteger(x)||x<0)throw new Error(n+" must be a whole number, 0 or more");return x};
+const sdev=s=>{if(s<=0)throw new Error("σ must be greater than 0");return s};
+const prob=p=>{if(p<0||p>1)throw new Error("p must be between 0 and 1");return p};
+
+// ---- Distribution
+const DD=[
+ {t:"Normal: density f(x)",rl:["x","μ (mean)","σ (std dev)"],defaults:["","0","1"],run:(i,v)=>{const x=need(v,0,"x"),m=need(v,1,"μ"),s=sdev(need(v,2,"σ"));return[["f(x)",F(normPdf(x,m,s))],["z",F((x-m)/s)]]}},
+ {t:"Normal: area between two values",rl:["Lower (blank = −∞)","Upper (blank = +∞)","μ (mean)","σ (std dev)"],defaults:["","","0","1"],run:(i,v)=>{const m=need(v,2,"μ"),s=sdev(need(v,3,"σ")),a=v[0]===null?-Infinity:v[0],b=v[1]===null?Infinity:v[1];if(a>b)throw new Error("Lower must not be above Upper");
+   return[["p",F(normArea(a,b,m,s))],["z lower",isFinite(a)?F((a-m)/s):"−∞"],["z upper",isFinite(b)?F((b-m)/s):"+∞"]]}},
+ {t:"Inverse normal",rl:["Area (left tail)","μ (mean)","σ (std dev)"],defaults:["","0","1"],run:(i,v)=>{const p=need(v,0,"Area"),m=need(v,1,"μ"),s=sdev(need(v,2,"σ")),x=normInv(p,m,s);return[["x",F(x)],["z",F((x-m)/s)]]}},
+ {t:"Binomial: P(X = x)",rl:["x","n (trials)","p"],defaults:["","",""],run:(i,v)=>[["P(X = x)",F(binomPdf(whole(need(v,0,"x"),"x"),whole(need(v,1,"n"),"n"),prob(need(v,2,"p"))))]]},
+ {t:"Binomial: P(X ≤ x)",rl:["x","n (trials)","p"],defaults:["","",""],run:(i,v)=>[["P(X ≤ x)",F(binomCdf(whole(need(v,0,"x"),"x"),whole(need(v,1,"n"),"n"),prob(need(v,2,"p"))))]]},
+ {t:"Inverse binomial",rl:["Area","n (trials)","p"],defaults:["","",""],run:(i,v)=>[["smallest x",F(binomInv(need(v,0,"Area"),whole(need(v,1,"n"),"n"),prob(need(v,2,"p"))))]]},
+ {t:"Poisson: P(X = x)",rl:["x","λ (mean)"],defaults:["",""],run:(i,v)=>{const l=need(v,1,"λ");if(l<=0)throw new Error("λ must be greater than 0");return[["P(X = x)",F(poissonPdf(whole(need(v,0,"x"),"x"),l))]]}},
+ {t:"Poisson: P(X ≤ x)",rl:["x","λ (mean)"],defaults:["",""],run:(i,v)=>{const l=need(v,1,"λ");if(l<=0)throw new Error("λ must be greater than 0");return[["P(X ≤ x)",F(poissonCdf(whole(need(v,0,"x"),"x"),l))]]}},
+ {t:"Inverse Poisson",rl:["Area","λ (mean)"],defaults:["",""],run:(i,v)=>{const l=need(v,1,"λ");if(l<=0)throw new Error("λ must be greater than 0");return[["smallest x",F(poissonInv(need(v,0,"Area"),l))]]}}];
+const dst={i:0};
+const distMenu=()=>pickScreen(DD.map(d=>d.t),dst,i=>go(formScreen(DD[i],()=>go(distMenu()))),()=>setMode("home"));
+
+// ---- Ratio
+const RD=[
+ {t:"Solve  a : b = c : d  (leave one blank)",rl:["a","b","c","d"],defaults:["","","",""],run:(i,v)=>{const r=solveRatio(...v),nm="abcd"[r.index],f=frac(r.value);return[[nm,F(r.value)]].concat(f?[[nm+" (fraction)",f]]:[])}},
+ {t:"Share a total in a ratio",rl:["Total","Part 1","Part 2","Part 3","Part 4"],defaults:["","","","",""],run:(i,v)=>{const t=need(v,0,"Total"),p=v.slice(1).filter(x=>x!==null);return shareRatio(t,p).map((x,k)=>["Part "+(k+1),F(x)])}},
+ {t:"Simplify a ratio",rl:["Part 1","Part 2","Part 3","Part 4","Part 5"],defaults:["","","","",""],run:(i,v)=>{const p=v.filter(x=>x!==null);return[["Simplified",simplifyRatio(p).join(" : ")]]}}];
+const rst={i:0};
+const ratioMenu=()=>pickScreen(RD.map(d=>d.t),rst,i=>go(formScreen(RD[i],()=>go(ratioMenu()))),()=>setMode("home"));
+
+// ---- Inequality
+const PL=["a (x⁴)","b (x³)","c (x²)","d (x)","e"];
+const ID=[["Quadratic: ax² + bx + c",2],["Cubic: ax³ + bx² + cx + d",3],["Quartic: ax⁴ + bx³ + cx² + dx + e",4]].map(([t,n])=>({t,
+ rl:n==2?["a (x²)","b (x)","c"]:n==3?["a (x³)","b (x²)","c (x)","d"]:PL,defaults:Array(n+1).fill(""),soft:["> 0","< 0","≥ 0","≤ 0"],
+ run:(i,v)=>{const c=v.map(x=>x===null?0:x);if(c[0]===0)throw new Error("The first coefficient cannot be 0");const rel=[">","<","≥","≤"][i],r=solveIneq(c,rel);
+  const rows=[["Solving","p(x) "+rel+" 0"],["Real roots",r.roots.length?r.roots.map(F).join(", "):"none"]];
+  describeIneq(r,F).forEach((x,k)=>rows.push([k?"or":"x",x]));return rows}}));
+const ist={i:0};
+const ineqMenu=()=>pickScreen(ID.map(d=>d.t),ist,i=>go(formScreen(ID[i],()=>go(ineqMenu()))),()=>setMode("home"));
+
+// ---- Spreadsheet
+let sheetNow=null;
+const sheetRaw=ref=>{const m=/^([A-E])(\d+)$/.exec(ref);const row=sheetG.rows[+m[2]-1];return row?row[m[1].charCodeAt(0)-65]:""};
+const sheetShow=(ri,ci,raw)=>{if(raw==="")return"";try{const x=sheetNow.value(String.fromCharCode(65+ci)+(ri+1));return x===null?"":typeof x==="string"?x:F(x)}catch(_){return"ERR"}};
+const sheetG=mkGrid({cols:["A","B","C","D","E"],rl:ri=>String(ri+1),rows:blank(12,5),raw:true,grow:true,max:99,show:sheetShow});
+function sheetScreen(){const g=sheetG,ins=t=>{g.ins(t);paint()};
+ return{render(){sheetNow=makeSheet(sheetRaw,evNum);const w=g.render(),raw=g.rows[g.r][g.c],ref=String.fromCharCode(65+g.c)+(g.r+1);
+   if(g.buf===null){let msg=raw;if(raw!==""){try{sheetNow.value(ref)}catch(e){msg+="   → "+e.message}}say(ref+(msg?":  "+msg:""))}else say(ref);return w},
+  soft:["=","SUM","AVG","FN","CLEAR",""],
+  f(i){const fn=t=>g.ins((g.buf===null||g.buf===""?"=":"")+t);if(i==0)g.ins("=");else if(i==1)fn("SUM(");else if(i==2)fn("AVERAGE(");
+   else if(i==3)menu("Insert",[[": (range, as in A1:A5)",":"],["MIN(","MIN("],["MAX(","MAX("],["COUNT(","COUNT("],["SUM(","SUM("],["AVERAGE(","AVERAGE("]].map(([l,t])=>[l,()=>ins(t.length>1&&t!==":"&&(g.buf===null||g.buf==="")?"="+t:t)]));
+   else if(i==4)menu("Clear the whole sheet?",[["Yes, clear everything",()=>{g.rows.splice(0,g.rows.length,...blank(12,5));g.r=g.c=0;g.buf=null;paint()}],["No",()=>{}]])},
+  ...gridKeys(g,()=>setMode("home"))}}

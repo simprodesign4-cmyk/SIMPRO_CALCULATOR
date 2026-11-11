@@ -72,7 +72,7 @@ sup{font-size:.7em;line-height:0}
 .tbl td.sel{background:#ffd9b3;outline:2px solid #ff9a3d}.tbl td.hl2{background:#ffd9b3}
 .tbl th.rl{text-align:left;width:1%;white-space:nowrap}
 .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:4px}
-.tile{border-radius:8px;background:#e8eefb;text-align:center;padding:8px 2px;font:600 11px "Segoe UI",sans-serif;cursor:pointer;border:2px solid transparent}
+.tile{border-radius:8px;background:#e8eefb;text-align:center;padding:5px 2px;font:600 11px "Segoe UI",sans-serif;cursor:pointer;border:2px solid transparent}
 .tile b{display:block;font-size:20px;color:#0b3070}.tile.soon{opacity:.45}.tile.hl{border-color:#ff9a3d;background:#fff3e6}
 .bnx{font:15px "Cascadia Mono",Consolas,monospace;padding:4px 2px;min-height:26px;word-break:break-all;color:#0b3070}
 .bnerr{color:#c1380a;padding:2px 4px;font-weight:600}

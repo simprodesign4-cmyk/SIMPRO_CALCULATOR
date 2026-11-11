@@ -18,7 +18,7 @@ const NUM=[
 let expr="",pos=0,shift=false,alpha=false,sto=false,done=false,sd=false,dmsOut=false,mixed=false,lastV=0,hist=[],hi=-1,off=false,mode="run",undo=[];
 let gfs=[],gw={x0:-10,x1:10,y0:-7.5,y1:7.5},trace=false,tx=0;
 const btns=[];
-const MODE_SET=new Set(["home","stat","eq","table","base","mat"]);
+const MODE_SET=new Set(["home","stat","eq","table","base","mat","dist","ratio","ineq","sheet"]);
 function ripple(b,e){const r=b.getBoundingClientRect(),s=document.createElement("span");s.className="rip";s.style.left=e.clientX-r.left+"px";s.style.top=e.clientY-r.top+"px";b.appendChild(s);setTimeout(()=>s.remove(),650)}
 function mk(el,d,cls,adv){const c=document.createElement("div");c.className="cell"+(adv?" adv":"");const l=document.createElement("div");l.className="lab";const b=document.createElement("button");b.className="key "+(d[5]||"");b.innerHTML="<span class=u></span><span class=f></span>";b._d=d;b._l=l;b.onclick=()=>press(d);b.addEventListener("pointerdown",e=>ripple(b,e));c.append(l,b);if(cls)c.classList.add(cls);el.appendChild(c);btns.push(b)}
 FK.forEach(d=>{d[5]="fkb";mk($("#top"),d,"fk",true)});
@@ -53,7 +53,7 @@ function recall(){expr=hi<0?"":hist[hi].e;pos=expr.length;done=false;show()}
 function flash(t){const r=$("#res");r.textContent=t;r.classList.add("err")}
 function eq(){if(!expr)return;if(expr.includes("="))return solve();try{const v=ev(expr);lastV=v;ans=v;const t=resText(v);hist.unshift({e:expr,r:t});hi=-1;done=true;renderHist();show();setRes(t)}catch(e){flash(/Error$/.test(e.message)?e.message:"Math Error");done=true}}
 function solve(){const[l,r]=expr.split("="),f=t=>evNum("("+l+")-("+(r||0)+")",t);for(const s of[V.x||1,1,-1,.5,5,-5,10,-10,50]){let x=s;try{for(let i=0;i<80;i++){const h=1e-6*Math.max(1,Math.abs(x)),d=(f(x+h)-f(x-h))/(2*h),n=x-f(x)/d;if(!isFinite(n))break;if(Math.abs(n-x)<1e-13*Math.max(1,Math.abs(x))){x=n;break}x=n}if(isFinite(x)&&Math.abs(f(x))<1e-8){V.x=x;const t="x = "+fmt(x);hist.unshift({e:expr,r:t});hi=-1;done=true;renderHist();show();$("#res").textContent=t;return}}catch(_){}}flash("No solution found");done=true}
-function setMode(m){mode=m;$("#scr").style.display=m=="run"?"flex":"none";$("#cv").style.display=m=="graph"?"block":"none";$("#mn").textContent=({run:"Run-Matrix",graph:"Graph",home:"Main Menu",stat:"Statistics",eq:"Equation",table:"Table",base:"Base-N",mat:"Matrix"})[m];$("#info").textContent="";trace=false;if(typeof modesShow=="function")modesShow(m);labels();if(m=="graph")draw()}
+function setMode(m){mode=m;$("#scr").style.display=m=="run"?"flex":"none";$("#cv").style.display=m=="graph"?"block":"none";$("#mn").textContent=({run:"Run-Matrix",graph:"Graph",home:"Main Menu",stat:"Statistics",eq:"Equation",table:"Table",base:"Base-N",mat:"Matrix",dist:"Distribution",ratio:"Ratio",ineq:"Inequality",sheet:"Spreadsheet"})[m];$("#info").textContent="";trace=false;if(typeof modesShow=="function")modesShow(m);labels();if(m=="graph")draw()}
 const COL=["#0b3070","#e4690a","#1a9a50"];
 function draw(){const cv=$("#cv"),r=cv.getBoundingClientRect(),dp=devicePixelRatio||1;cv.width=r.width*dp;cv.height=r.height*dp;const g=cv.getContext("2d");g.scale(dp,dp);const W=r.width,H=r.height,{x0,x1,y0,y1}=gw,X=x=>(x-x0)/(x1-x0)*W,Y=y=>H-(y-y0)/(y1-y0)*H;
  g.fillStyle="#fff";g.fillRect(0,0,W,H);
@@ -139,7 +139,7 @@ function setupMenu(){const out=dmsOut?"DMS (° ′ ″)":sd?(mixed?"Mixed fracti
  menu("Set Up",[["Angle unit: "+ang+"  (tap to change)",()=>{ang=ang=="DEG"?"RAD":ang=="RAD"?"GRAD":"DEG";again()}],
   ["Display: "+fm+"  (tap to change)",()=>{fm=fm=="NORM"?"SCI":fm=="SCI"?"ENG":"NORM";again()}],
   ["Decimal places: "+(fixN===null?"Norm":"Fix "+fixN)+"  ›",()=>decMenu()],
-  ["Result as: "+out+"  (tap to change)",()=>{if(dmsOut)dmsOut=false;else if(!sd)sd=true;else if(!mixed)mixed=true;else{sd=false;mixed=false;dmsOut=true}again()}]],"Tap outside the box to close.")}
+  ["Result as: "+out+"  (tap to change)",()=>{if(dmsOut)dmsOut=false;else if(!sd)sd=true;else if(!mixed)mixed=true;else{sd=false;mixed=false;dmsOut=true}again()}],["Reset all settings",()=>{ang="DEG";fm="NORM";fixN=null;sd=false;mixed=false;dmsOut=false;again()}]],"Tap outside the box to close.")}
 function decMenu(){menu("Decimal places",[["Norm (automatic)",null],...[0,1,2,3,4,5,6,9].map(n=>["Fix "+n,n])].map(([l,n])=>[l,()=>{fixN=n;save();labels();show();if(done)setRes(resText(lastV));setupMenu()}]))}
 const CONV={Length:["m","km","cm","mm","in","ft","yd","mi"],Mass:["g","kg","lb","oz"],Temperature:["°C","°F","K"],Time:["s","min","h","day"],Speed:["m/s","km/h","mph"],Volume:["L","mL","gal"],Energy:["J","kJ","cal","kWh","eV"],Pressure:["Pa","kPa","atm","bar","psi"],Power:["W","kW","hp"],Angle:["deg","rad","grad"]};
 function convMenu(){const base=done?"Ans":(expr||"Ans");
