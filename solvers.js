@@ -13,7 +13,9 @@ const horner=(c,z)=>{let r=[c[0],0];for(let i=1;i<c.length;i++){r=cm(r,z);r[0]+=
 function polyRoots(c){c=c.slice();while(c.length>1&&c[0]===0)c.shift();const n=c.length-1;if(n<1)throw new Error("Degree must be at least 1");
  let z;
  if(n===1)z=[[-c[1]/c[0],0]];
- else if(n===2){const[a,b,cc]=c,D=b*b-4*a*cc,s=Math.sqrt(Math.abs(D));z=D>=0?[[(-b+s)/(2*a),0],[(-b-s)/(2*a),0]]:[[-b/(2*a),s/(2*a)],[-b/(2*a),-s/(2*a)]]}
+ else if(n===2){const[a,b,cc]=c,D=b*b-4*a*cc,s=Math.sqrt(Math.abs(D));
+  if(D>=0){const q=-(b+(b>=0?s:-s))/2,r1=q/a,r2=q!==0?cc/q:r1;z=[[Math.min(r1,r2),0],[Math.max(r1,r2),0]]} // stable form: no cancellation
+  else z=[[-b/(2*a),s/(2*a)],[-b/(2*a),-s/(2*a)]]}
  else{const m=c.map(v=>v/c[0]);z=[];let p=[1,0];for(let k=0;k<n;k++){z.push(p);p=cm(p,[0.4,0.9])}
   for(let it=0;it<2000;it++){let mx=0;for(let k=0;k<n;k++){let d=[1,0];for(let j=0;j<n;j++)if(j!==k)d=cm(d,[z[k][0]-z[j][0],z[k][1]-z[j][1]]);const dz=cdv(horner(m,z[k]),d);z[k]=[z[k][0]-dz[0],z[k][1]-dz[1]];mx=Math.max(mx,Math.hypot(dz[0],dz[1]))}if(mx<1e-15)break}
   const dm=m.slice(0,-1).map((v,i)=>v*(n-i));
@@ -36,22 +38,25 @@ function stats2(xs,ys){const n=xs.length,sum=a=>a.reduce((s,v)=>s+v,0),mx=sum(xs
  return{n,mx,my,sumX:sum(xs),sumY:sum(ys),sumX2:sum(xs.map(x=>x*x)),sumY2:sum(ys.map(y=>y*y)),sumXY:sum(xs.map((x,i)=>x*ys[i])),
   sigX:Math.sqrt(sxx/n),sigY:Math.sqrt(syy/n),sx:n>1?Math.sqrt(sxx/(n-1)):NaN,sy:n>1?Math.sqrt(syy/(n-1)):NaN}}
 
-function linFit(xs,ys){const n=xs.length;let sx=0,sy=0,sxy=0,sxx=0,syy=0;
- for(let i=0;i<n;i++){sx+=xs[i];sy+=ys[i];sxy+=xs[i]*ys[i];sxx+=xs[i]*xs[i];syy+=ys[i]*ys[i]}
- const dx=n*sxx-sx*sx,dy=n*syy-sy*sy;if(Math.abs(dx)<1e-12*Math.max(1,n*sxx))throw new Error("Math Error");
- const b=(n*sxy-sx*sy)/dx,a=(sy-b*sx)/n;return{a,b,r:dy<=1e-12*Math.max(1,n*syy)?NaN:(n*sxy-sx*sy)/Math.sqrt(dx*dy)}}
+// straight-line fit, worked from deviations about the means so that large x or y values do not lose accuracy
+function linFit(xs,ys){const n=xs.length,mx=xs.reduce((t,v)=>t+v,0)/n,my=ys.reduce((t,v)=>t+v,0)/n;let sxx=0,syy=0,sxy=0;
+ for(let i=0;i<n;i++){const dx=xs[i]-mx,dy=ys[i]-my;sxx+=dx*dx;syy+=dy*dy;sxy+=dx*dy}
+ if(sxx===0||sxx<1e-30*n*(1+mx*mx))throw new Error("Math Error");
+ const b=sxy/sxx;return{a:my-b*mx,b,r:syy<=0?NaN:sxy/Math.sqrt(sxx*syy),mx,my}}
 // type: lin | quad | log | exp | pow
 function regress(type,xs,ys){const n=xs.length;if(n<2)throw new Error("Need at least 2 points");
  const pos=a=>{if(a.some(v=>!(v>0)))throw new Error("Math Error")};
- if(type==="lin"){const{a,b,r}=linFit(xs,ys);return{type,a,b,r,predict:x=>a+b*x,invert:y=>[(y-a)/b]}}
+ if(type==="lin"){const{a,b,r,mx,my}=linFit(xs,ys);return{type,a,b,r,predict:x=>my+b*(x-mx),invert:y=>[mx+(y-my)/b]}}
  if(type==="log"){pos(xs);const{a,b,r}=linFit(xs.map(Math.log),ys);return{type,a,b,r,predict:x=>a+b*Math.log(x),invert:y=>[Math.exp((y-a)/b)]}}
  if(type==="exp"){pos(ys);const f=linFit(xs,ys.map(Math.log)),a=Math.exp(f.a),b=f.b;return{type,a,b,r:f.r,predict:x=>a*Math.exp(b*x),invert:y=>[Math.log(y/a)/b]}}
  if(type==="pow"){pos(xs);pos(ys);const f=linFit(xs.map(Math.log),ys.map(Math.log)),a=Math.exp(f.a),b=f.b;return{type,a,b,r:f.r,predict:x=>a*Math.pow(x,b),invert:y=>[Math.pow(y/a,1/b)]}}
  if(type==="quad"){if(n<3)throw new Error("Need at least 3 points");
-  const S=k=>xs.reduce((s,x)=>s+Math.pow(x,k),0),T=k=>xs.reduce((s,x,i)=>s+Math.pow(x,k)*ys[i],0);
+  const mx=xs.reduce((t,v)=>t+v,0)/n,u=xs.map(x=>x-mx),my=ys.reduce((t,v)=>t+v,0)/n;
+  const S=k=>u.reduce((t,v)=>t+Math.pow(v,k),0),T=k=>u.reduce((t,v,i)=>t+Math.pow(v,k)*ys[i],0);
   const sol=solveLinear([[S(4),S(3),S(2)],[S(3),S(2),S(1)],[S(2),S(1),n]],[T(2),T(1),T(0)]);if(!sol)throw new Error("Math Error");
-  const[a,b,c]=sol,my=ys.reduce((s,y)=>s+y,0)/n;let sr=0,st=0;xs.forEach((x,i)=>{sr+=(ys[i]-(a*x*x+b*x+c))**2;st+=(ys[i]-my)**2});
-  return{type,a,b,c,r2:st===0?NaN:1-sr/st,predict:x=>a*x*x+b*x+c,invert:y=>polyRoots([a,b,c-y]).filter(z=>z.im===0).map(z=>z.re)}}
+  const[A,B,Cc]=sol;let sr=0,st=0;u.forEach((v,i)=>{sr+=(ys[i]-(A*v*v+B*v+Cc))**2;st+=(ys[i]-my)**2});
+  // shift back to the original x: y = A(x-mx)^2 + B(x-mx) + Cc
+  return{type,a:A,b:B-2*A*mx,c:Cc-B*mx+A*mx*mx,r2:st===0?NaN:1-sr/st,predict:x=>A*(x-mx)**2+B*(x-mx)+Cc,invert:y=>polyRoots([A,B,Cc-y]).filter(z=>z.im===0).map(z=>z.re+mx)}}
  throw new Error("Unknown regression type")}
 
 if(typeof module!=="undefined")module.exports={solveLinear,polyRoots,stats1,stats2,regress};

@@ -11,7 +11,7 @@ function phi(z){if(z===Infinity)return 1;if(z===-Infinity)return 0;const a=Math.
 const normPdf=(x,m,s)=>Math.exp(-0.5*((x-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
 const normCdf=(x,m,s)=>phi((x-m)/s);
 function normArea(a,b,m,s){const za=(a-m)/s,zb=(b-m)/s;return za>=0?phi(-za)-phi(-zb):phi(zb)-phi(za)}
-function normInv(p,m,s){if(!(p>0&&p<1))throw new Error("Area must be between 0 and 1");let lo=-40,hi=40;for(let i=0;i<200;i++){const mid=(lo+hi)/2;if(phi(mid)<p)lo=mid;else hi=mid}return m+s*(lo+hi)/2}
+function normInv(p,m,s){if(!(p>0&&p<1))throw new Error("Area must be between 0 and 1");let lo=-40,hi=40;for(let i=0;i<200;i++){const mid=(lo+hi)/2,v=phi(mid);if(v===p){lo=hi=mid;break}if(v<p)lo=mid;else hi=mid}return m+s*(lo+hi)/2}
 function binomPdf(k,n,p){if(k<0||k>n)return 0;if(p===0)return k===0?1:0;if(p===1)return k===n?1:0;
  return Math.exp(lgam(n+1)-lgam(k+1)-lgam(n-k+1)+k*Math.log(p)+(n-k)*Math.log1p(-p))}
 function binomCdf(k,n,p){if(k<0)return 0;if(k>=n)return 1;let s=0;for(let i=0;i<=k;i++)s+=binomPdf(i,n,p);return Math.min(1,s)}

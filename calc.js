@@ -2,7 +2,8 @@
 /* SIMPRO_CALCULATOR engine (v2): tokenizer -> parser -> evaluator.
    Values are exact fractions (Q), complex numbers (Cx) or plain floats.
    Works in the browser (shared globals with ui.js) and in Node (see test/). */
-const C={c:299792458,h:6.62607015e-34,g:9.80665,G:6.6743e-11,kB:1.380649e-23,NA:6.02214076e23,q:1.602176634e-19,me:9.1093837015e-31,e0:8.8541878128e-12,mu0:1.25663706212e-6,R:8.314462618,sigma:5.670374419e-8};
+// SI-defined constants are exact; the rest are CODATA 2022 recommended values. R and sigma follow from the exact ones.
+const C={c:299792458,h:6.62607015e-34,g:9.80665,G:6.6743e-11,kB:1.380649e-23,NA:6.02214076e23,q:1.602176634e-19,me:9.1093837139e-31,e0:8.8541878188e-12,mu0:1.25663706127e-6,R:8.31446261815324,sigma:5.670374419184429e-8};
 let ans=0,ang="DEG",fm="NORM",fixN=null;
 const V={A:0,B:0,C:0,D:0,E:0,F:0,M:0,x:0,y:0};
 function config(o){if(o.ang)ang=o.ang;if("fix" in o)fixN=o.fix;if(o.fm)fm=o.fm;if("ans" in o)ans=o.ans;if(o.V)Object.assign(V,o.V)}
@@ -33,6 +34,7 @@ const mul=(a,b)=>{if(isC(a)||isC(b)){a=toC(a);b=toC(b);return mkC(a.re*b.re-a.im
 const div=(a,b)=>{if(isC(a)||isC(b)){a=toC(a);b=toC(b);const d=b.re*b.re+b.im*b.im;if(d===0)err(MTH);return mkC((a.re*b.re+a.im*b.im)/d,(a.im*b.re-a.re*b.im)/d)}
  if(isQ(a)&&isQ(b)){if(b.n===0n)err(MTH);return new Q(a.n*b.d,a.d*b.n)}const y=real(b);if(y===0)err(MTH);return chk(real(a)/y)};
 function pow(a,b){
+ if((isQ(a)?a.n===0n:a===0)&&(isQ(b)?b.n===0n:b===0))err(MTH);
  if(isQ(a)&&isQ(b)&&b.d===1n&&b.n<=400n&&b.n>=-400n){let e=b.n,n=a.n,d=a.d;if(e<0n){if(n===0n)err(MTH);[n,d]=[d,n];e=-e}if(n**e<10n**2000n&&d**e<10n**2000n)return new Q(n**e,d**e)}
  const cx=isC(a)||isC(b)||(real(a)<0&&!Number.isInteger(real(b)));
  if(cx){const x=toC(a),y=toC(b);if(x.re===0&&x.im===0){if(y.re>0)return 0;err(MTH)}const r=Math.log(Math.hypot(x.re,x.im)),t=Math.atan2(x.im,x.re),e=Math.exp(y.re*r-y.im*t),w=y.im*r+y.re*t;return mkC(e*Math.cos(w),e*Math.sin(w))}
@@ -64,7 +66,7 @@ const UNITS={m:lin("len",1),km:lin("len",1000),cm:lin("len",.01),mm:lin("len",.0
  "°C":["temp",v=>v,v=>v],"°F":["temp",v=>(v-32)*5/9,v=>v*9/5+32],K:["temp",v=>v-273.15,v=>v+273.15]};
 const unit=u=>u instanceof Str&&Object.prototype.hasOwnProperty.call(UNITS,u.s)?UNITS[u.s]:err(ARG);
 const FN={
- sin:v=>z(Math.sin(rad(R(v)))),cos:v=>z(Math.cos(rad(R(v)))),tan:v=>chk(z(Math.tan(rad(R(v))))),
+ sin:v=>z(Math.sin(rad(R(v)))),cos:v=>z(Math.cos(rad(R(v)))),tan:v=>{const r=rad(R(v));if(Math.abs(Math.cos(r))<1e-15)err(MTH);return z(Math.tan(r))},
  asin:v=>chk(deg(Math.asin(R(v)))),acos:v=>chk(deg(Math.acos(R(v)))),atan:v=>deg(Math.atan(R(v))),
  sinh:v=>chk(Math.sinh(R(v))),cosh:v=>chk(Math.cosh(R(v))),tanh:v=>Math.tanh(R(v)),asinh:v=>Math.asinh(R(v)),acosh:v=>chk(Math.acosh(R(v))),atanh:v=>chk(Math.atanh(R(v))),
  log:v=>chk(Math.log10(R(v))),ln:lnV,lb:v=>chk(Math.log2(R(v))),logb:(b,v)=>chk(Math.log(R(v))/Math.log(R(b))),exp:expV,
@@ -94,7 +96,7 @@ function lex(s){const t=[];let i=0;
   if(c==='"'){const j=s.indexOf('"',i+1);if(j<0)err(SYN);t.push({k:"str",v:s.slice(i+1,j)});i=j+1;continue}
   const r=s.slice(i);let m;
   if((m=/^(\d+\.?\d*)°(?:(\d+\.?\d*)′)?(?:(\d+\.?\d*)″)?/.exec(r))){t.push({k:"num",dms:[m[1],m[2],m[3]]});i+=m[0].length;continue}
-  if((m=/^(\d+\.?\d*|\.\d+)(E[+−-]?\d+)?/.exec(r))){t.push({k:"num",v:m[1],e:m[2]});i+=m[0].length;continue}
+  if((m=/^(\d+\.?\d*|\.\d+)([Ee][+−-]?\d+)?/.exec(r))){t.push({k:"num",v:m[1],e:m[2]});i+=m[0].length;continue}
   if((m=/^\[(\w+)\]/.exec(r))){t.push({k:"const",v:m[1]});i+=m[0].length;continue}
   if((m=/^[A-Za-z_]+/.exec(r))){t.push({k:"id",v:m[0]});i+=m[0].length;continue}
   if("+−-×÷*/^()!%,=".includes(c)){t.push({k:"op",v:c});i++;continue}

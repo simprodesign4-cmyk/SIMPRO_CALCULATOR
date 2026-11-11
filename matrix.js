@@ -15,7 +15,7 @@ function mDet(A){mSquare(A);const n=A.length,M=A.map(r=>r.slice()),sc=mMax(A);le
  for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;
   if(M[p][c]===0)return 0;if(p!==c){[M[p],M[c]]=[M[c],M[p]];d=-d}d*=M[c][c];
   for(let r=c+1;r<n;r++){const f=M[r][c]/M[c][c];for(let k=c;k<n;k++)M[r][k]-=f*M[c][k]}}
- return Math.abs(d)<1e-12*Math.pow(sc,n)?0:d}
+ return Math.abs(d)<1e-14*Math.pow(sc,n)?0:d}
 function mInv(A){mSquare(A);const n=A.length,sc=mMax(A),M=A.map((r,i)=>[...r,...mIdentity(n)[i]]);
  for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;
   if(Math.abs(M[p][c])<1e-12*(sc||1))mErr("Math Error");[M[c],M[p]]=[M[p],M[c]];const d=M[c][c];for(let k=0;k<2*n;k++)M[c][k]/=d;

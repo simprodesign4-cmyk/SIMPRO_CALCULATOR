@@ -9,7 +9,7 @@ const mkc=(tag,txt,cls)=>{const e=document.createElement(tag);e.textContent=txt;
 const F=v=>isFinite(v)?fmt(v):"---";
 const cplx=z=>fmt(mkC(z.re,z.im));
 function paint(){if(!cur)return;const st=mv.scrollTop;mv.innerHTML="";mv.appendChild(cur.render());mv.scrollTop=st;
- soft.innerHTML="";for(let i=0;i<6;i++){const d=document.createElement("div");d.textContent=(cur.soft||[])[i]||"";d.onclick=()=>{if(d.textContent&&cur.f){fire(()=>cur.f(i));paint()}};soft.appendChild(d)}
+ soft.innerHTML="";for(let i=0;i<6;i++){const d=document.createElement("div");d.textContent=(cur.soft||[])[i]||"";d.setAttribute("role","button");d.tabIndex=d.textContent?0:-1;d.setAttribute("aria-label",d.textContent?"F"+(i+1)+", "+d.textContent:"unused");d.onkeydown=ev=>{if(ev.key=="Enter"||ev.key==" "){ev.preventDefault();d.click()}};d.onclick=()=>{if(d.textContent&&cur.f){fire(()=>cur.f(i));paint()}};soft.appendChild(d)}
  const s=mv.querySelector(".sel,.hl");if(s)s.scrollIntoView({block:"nearest"})}
 function fire(fn){try{fn()}catch(e){say(e.message)}}
 function go(s,info){cur=s;say(info||"");paint()}
@@ -58,7 +58,7 @@ const TILES=[["Run-Matrix","run"],["Statistics","stat"],["Graph","graph"],["Tabl
 let hl=0;
 function homeScreen(){const open=i=>{const t=TILES[i];if(!t[1])return say(t[0]+" arrives in a later phase");setMode(t[1])};
  return{render(){const d=document.createElement("div");d.className="tiles";
-  TILES.forEach((t,i)=>{const e=document.createElement("div");e.className="tile"+(t[1]?"":" soon")+(i==hl?" hl":"");e.appendChild(mkc("b","1234567890•"[i]));e.append(t[0]);e.onclick=()=>{hl=i;open(i)};d.appendChild(e)});return d},
+  TILES.forEach((t,i)=>{const e=document.createElement("div");e.className="tile"+(t[1]?"":" soon")+(i==hl?" hl":"");e.appendChild(mkc("b","1234567890•"[i]));e.append(t[0]);e.onclick=()=>{hl=i;open(i)};e.tabIndex=0;e.setAttribute("role","button");e.onkeydown=ev=>{if(ev.key=="Enter"||ev.key==" "){ev.preventDefault();e.click()}};d.appendChild(e)});return d},
   soft:[],ins(a){const k="1234567890.".indexOf(a);if(a.length==1&&k>=0&&k<TILES.length){hl=k;open(hl)}},nav(m){hl=Math.max(0,Math.min(TILES.length-1,hl+{l:-1,r:1,u:-3,d:3}[m]))},eq(){open(hl)},exit(){setMode("run")}}}
 
 // ---- Statistics

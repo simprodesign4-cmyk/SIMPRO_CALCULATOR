@@ -19,7 +19,7 @@ body{min-height:100vh;padding:10px;font-family:"Segoe UI",system-ui,sans-serif;b
 #bar{background:#0b3070;color:#fff;font:600 11px "Cascadia Mono",Consolas,monospace;padding:2px 6px;display:flex;justify-content:space-between}
 #bar b{color:#ffb066}
 #scr{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:4px 8px;min-height:0;font-family:"Cascadia Mono",Consolas,monospace}
-#trail{font-size:12px;color:#5a6f95;text-align:right;overflow:hidden}
+#trail{font-size:12px;color:#4f6288;text-align:right;overflow:hidden}
 #expr{font-size:clamp(15px,4.4vw,19px);white-space:pre-wrap;word-break:break-all;max-height:48%;overflow:auto;scrollbar-width:none}
 #res{font-weight:700;font-size:clamp(22px,7vw,30px);text-align:right;overflow-x:auto;white-space:nowrap;scrollbar-width:none;min-height:1.3em}
 #res.err{color:#c1380a}
@@ -39,7 +39,7 @@ body{min-height:100vh;padding:10px;font-family:"Segoe UI",system-ui,sans-serif;b
 .fk .key{height:24px;border-radius:14px;font-size:11px}
 .n5 .key{height:clamp(40px,12vw,50px);font-size:clamp(17px,5.4vw,22px);border-radius:12px}
 .n5 .key.sm{font-size:clamp(11px,3.4vw,14px)}
-.key.blue{background:linear-gradient(#4a8cf0,#2767d1);color:#fff;box-shadow:0 4px 0 #17408f,0 6px 8px rgba(0,0,0,.4)}
+.key.blue{background:linear-gradient(#2b6cd6,#1a52b5);color:#fff;box-shadow:0 4px 0 #17408f,0 6px 8px rgba(0,0,0,.4)}
 .key.exe{box-shadow:0 4px 0 #e4690a,0 6px 8px rgba(0,0,0,.4)}
 .key.on{background:linear-gradient(#ffb066,#ff9a3d)}
 .u{position:absolute;top:1px;right:4px;font-size:8px;color:#0b3070;font-weight:700}
@@ -78,3 +78,14 @@ sup{font-size:.7em;line-height:0}
 .bnerr{color:#c1380a;padding:2px 4px;font-weight:600}
 .chips button[hidden]{display:none}
 .chips #bInst{background:#ff9a3d;color:#04122c}
+/* text size (SET UP > Text size) */
+body.tx1 #expr{font-size:clamp(18px,5.2vw,23px)}body.tx2 #expr{font-size:clamp(21px,6vw,27px)}
+body.tx1 #res{font-size:clamp(26px,8vw,34px)}body.tx2 #res{font-size:clamp(30px,9vw,40px)}
+body.tx1 #mv,body.tx1 #info,body.tx1 #trail{font-size:14px}body.tx2 #mv,body.tx2 #info,body.tx2 #trail{font-size:16px}
+body.tx1 #bar{font-size:13px}body.tx2 #bar{font-size:15px}
+body.tx1 #soft div{font-size:12px;line-height:20px}body.tx2 #soft div{font-size:14px;line-height:24px}
+body.tx1 .lab{font-size:11.5px}body.tx2 .lab{font-size:13px}
+body.tx1 .key{font-size:clamp(11px,3.3vw,14px)}body.tx2 .key{font-size:clamp(12px,3.7vw,15px)}
+body.tx1 .n5 .key{font-size:clamp(19px,6vw,25px)}body.tx2 .n5 .key{font-size:clamp(21px,6.6vw,28px)}
+body.tx1 .tile,body.tx2 .tile{font-size:13px}
+#soft div:focus-visible,.tile:focus-visible,.chips button:focus-visible,.dpad button:focus-visible,.box button:focus-visible{outline:3px solid #ff9a3d;outline-offset:1px}
