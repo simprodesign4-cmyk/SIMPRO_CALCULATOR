@@ -76,3 +76,5 @@ sup{font-size:.7em;line-height:0}
 .tile b{display:block;font-size:20px;color:#0b3070}.tile.soon{opacity:.45}.tile.hl{border-color:#ff9a3d;background:#fff3e6}
 .bnx{font:15px "Cascadia Mono",Consolas,monospace;padding:4px 2px;min-height:26px;word-break:break-all;color:#0b3070}
 .bnerr{color:#c1380a;padding:2px 4px;font-weight:600}
+.chips button[hidden]{display:none}
+.chips #bInst{background:#ff9a3d;color:#04122c}

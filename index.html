@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SIMPRO_CALCULATOR</title>
+<meta name="description" content="A scientific and graphing calculator for students and researchers.">
+<meta name="theme-color" content="#071f4d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SIMPRO">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="stylesheet" href="style.css">
 
 </head>
@@ -11,7 +20,7 @@
 <div class="wrap" id="wrap">
  <div class="hist"><h3>History (tap to reuse)</h3><div id="hl"></div></div>
  <div class="dev" id="dev">
-  <div class="top"><div class="brand">SIMPRO<span>_</span>CALCULATOR</div><div class="chips"><button id="bH">History</button><button id="mSci" class="on">Scientific</button><button id="mSim">Simple</button></div></div>
+  <div class="top"><div class="brand">SIMPRO<span>_</span>CALCULATOR</div><div class="chips"><button id="bH">History</button><button id="mSci" class="on">Scientific</button><button id="mSim">Simple</button><button id="bInst" hidden>Install</button></div></div>
   <div id="lcd"><div id="bar"><span id="mn">Run-Matrix</span><b id="st"></b></div>
    <div id="scr"><div id="trail"></div><div id="expr"></div><div id="res">0</div></div><canvas id="cv"></canvas><div id="info"></div></div>
   <div class="grid t6" id="top"></div>
@@ -29,5 +38,6 @@
 <script src="sheet.js"></script>
 <script src="ui.js"></script>
 <script src="modes.js"></script>
+<script src="pwa.js"></script>
 </body>
 </html>
