@@ -26,7 +26,7 @@ function modeKey(a){if(!cur)return false;
 function modeInsert(t){if(cur&&cur.ins){fire(()=>cur.ins(t));paint()}}
 function modesShow(m){const on=MODE_SET.has(m);mv.style.display=on?"block":"none";soft.style.display=on?"grid":"none";
  if(!on){cur=null;return}
- if(m=="home")go(homeScreen());else if(m=="stat")go(statList());else if(m=="eq")go(eqMenu());else go(tableIn())}
+ if(m=="home")go(homeScreen());else if(m=="stat")go(statList());else if(m=="eq")go(eqMenu());else if(m=="base")go(baseScreen());else if(m=="mat")go(matList());else go(tableIn())}
 
 // ---- editable grid used by Statistics, Equation and Table
 function mkGrid(o){const g={cols:o.cols,rl:o.rl,rows:o.rows,r:0,c:0,buf:null,max:o.max||99,text:o.text||(()=>false),grow:!!o.grow};
@@ -54,7 +54,7 @@ function resScreen(o){return{render(){const t=document.createElement("table");t.
 const blank=(n,c)=>Array.from({length:n},()=>Array(c).fill(""));
 
 // ---- Main Menu
-const TILES=[["Run-Matrix","run"],["Statistics","stat"],["Graph","graph"],["Table","table"],["Equation","eq"],["Base-N"],["Matrix"],["Distribution"],["Spreadsheet"]];
+const TILES=[["Run-Matrix","run"],["Statistics","stat"],["Graph","graph"],["Table","table"],["Equation","eq"],["Base-N","base"],["Matrix","mat"],["Distribution"],["Spreadsheet"]];
 let hl=0;
 function homeScreen(){const open=i=>{const t=TILES[i];if(!t[1])return say(t[0]+" arrives in a later phase");setMode(t[1])};
  return{render(){const d=document.createElement("div");d.className="tiles";
@@ -111,3 +111,57 @@ function tableIn(){return{render:()=>tg.render(),soft:["TABLE","GRAPH"],
   for(let k=0;k<d.n;k++){const x=parseFloat((d.a+k*d.s).toPrecision(12)),y=safeNum(d.f,x);lines.push([F(x),isFinite(y)?F(y):"ERROR"])}
   go(resScreen({head:["x","f(x)"],lines,back:()=>go(tableIn()),soft:["LIST","GRAPH"],f:j=>j==0?go(tableIn()):fire(tablePlot)}))},
  ...gridKeys(tg,()=>setMode("home"))}}
+
+// ---- Base-N
+const BN={10:"DEC",16:"HEX",2:"BIN",8:"OCT"},bn={base:10,e:"",p:0};
+const bnVal=()=>bn.e.trim()?evalBase(bn.e,bn.base):null;
+function baseScreen(){
+ const put=t=>{bn.e=bn.e.slice(0,bn.p)+t+bn.e.slice(bn.p);bn.p+=t.length};
+ const setBase=b=>{let t="";try{const v=bnVal();if(v!==null)t=toBase(v,b).replace(/ /g,"")}catch(_){}bn.base=b;bn.e=t;bn.p=t.length;say("Base: "+BN[b])};
+ return{render(){const w=document.createElement("div"),ex=document.createElement("div");ex.className="bnx";
+  ex.append(bn.e.slice(0,bn.p));ex.appendChild(mkc("span","","car"));ex.append(bn.e.slice(bn.p));w.appendChild(ex);
+  let v=null,msg="";try{v=bnVal()}catch(e){msg=e.message}
+  const t=document.createElement("table");t.className="tbl";
+  [[10,"Dec"],[16,"Hex"],[2,"Bin"],[8,"Oct"]].forEach(([b,l])=>{const r=document.createElement("tr");r.appendChild(mkc("th",l,"rl"));r.appendChild(mkc("td",v===null?"":toBase(v,b),b==bn.base?"hl2":""));t.appendChild(r)});
+  w.appendChild(t);if(msg)w.appendChild(mkc("div",msg,"bnerr"));return w},
+  soft:["DEC","HEX","BIN","OCT","LOGIC",""],
+  f(i){if(i<4)setBase([10,16,2,8][i]);else menu("Logic operations",[["and"," and "],["or"," or "],["xor"," xor "],["xnor"," xnor "],["not(","not("],["neg(","neg("]].map(([l,t])=>[l,()=>{put(t);paint()}]))},
+  ins(a){const ok={2:/^[01]$/,8:/^[0-7]$/,10:/^[0-9]$/,16:/^[0-9A-Fa-f]$/}[bn.base];if(a.length==1&&ok.test(a))put(a.toUpperCase());else if(a.length==1&&"+−×÷()".includes(a))put(a);else say("Not allowed in "+BN[bn.base])},
+  nav(m){if(m=="l")bn.p=Math.max(0,bn.p-1);if(m=="r")bn.p=Math.min(bn.e.length,bn.p+1)},
+  del(){const left=bn.e.slice(0,bn.p),m=/( and | or | xor | xnor |not\(|neg\(|[\s\S])$/.exec(left);if(m){bn.e=left.slice(0,left.length-m[0].length)+bn.e.slice(bn.p);bn.p-=m[0].length}},
+  ac(){bn.e="";bn.p=0},
+  eq(){const v=bnVal();if(v!==null){bn.e=toBase(v,bn.base).replace(/ /g,"");bn.p=bn.e.length}},
+  exit(){setMode("home")}}}
+
+// ---- Matrix and vector
+const MK="ABCDEF".split(""),mats={};MK.forEach(k=>mats[k]={r:2,c:2,d:blank(2,2)});let mi=0;
+const mnum=k=>mats[k].d.map(r=>r.map(v=>v===""?0:Number(v)));
+const pickMat=(title,cb)=>menu(title,MK.map(k=>[k+"   ("+mats[k].r+"×"+mats[k].c+")",()=>cb(k)]));
+function matList(){return{render(){const t=document.createElement("table");t.className="tbl";
+  MK.forEach((k,i)=>{const r=document.createElement("tr"),m=mats[k];r.appendChild(mkc("th","Mat "+k,"rl"));
+   const td=mkc("td",m.r+"×"+m.c+"   "+m.d[0].map(v=>v===""?"0":v).join(" ")+(m.r>1?" …":""),i==mi?"hl2":"");td.style.textAlign="left";r.appendChild(td);r.onclick=()=>{mi=i;go(matEdit(k))};t.appendChild(r)});return t},
+  soft:["EDIT","DIM","OPER","CLEAR","",""],
+  f(i){const k=MK[mi];if(i==0)go(matEdit(k));else if(i==1)setDim(k);else if(i==2)opMenu();else if(i==3){mats[k].d=blank(mats[k].r,mats[k].c);say("Mat "+k+" cleared")}},
+  nav(m){mi=Math.max(0,Math.min(5,mi+(m=="u"?-1:m=="d"?1:0)))},eq(){go(matEdit(MK[mi]))},exit(){setMode("home")}}}
+function setDim(k){const t=prompt("Size of Mat "+k+" as rows,columns (for example 3,3):",mats[k].r+","+mats[k].c);if(t===null)return;
+ const[r,c]=t.split(",").map(x=>parseInt(x));if(!(r>=1&&r<=6&&c>=1&&c<=6)){say("Rows and columns must be from 1 to 6");return}
+ const old=mats[k].d;mats[k]={r,c,d:blank(r,c).map((row,i)=>row.map((_,j)=>(old[i]&&old[i][j])||""))}}
+function matEdit(k){const m=mats[k],g=mkGrid({cols:Array.from({length:m.c},(_,j)=>String(j+1)),rl:Array.from({length:m.r},(_,i)=>String(i+1)),rows:m.d,max:m.r});
+ return{render:()=>g.render(),soft:["BACK"],f:()=>go(matList()),...gridKeys(g,()=>go(matList()),true)}}
+const OPS=[["Determinant","det",1],["Inverse","inv",1],["Transpose","tr",1],["Row-reduce (RREF)","rref",1],["Rank","rank",1],["Trace","trace",1],
+ ["Add  A + B","add",2],["Subtract  A − B","sub",2],["Multiply  A × B","mul",2],["Multiply by a number","scale",1],["Power  A^n","pow",1],["Identity matrix","id",0],
+ ["Vector: dot product","dot",2],["Vector: cross product","cross",2],["Vector: length |A|","norm",1],["Vector: angle between","angle",2]];
+function opMenu(){menu("Matrix operations",OPS.map(([l,op,n])=>[l,()=>{if(n==0)runOp(op,[]);else if(n==1)pickMat("Which matrix?",a=>runOp(op,[a]));else pickMat("First matrix (A)",a=>pickMat("Second matrix (B)",b=>runOp(op,[a,b])))}]))}
+function matResult(title,R){return{render(){const w=document.createElement("div");w.appendChild(mkc("div",title,"bnx"));const tb=document.createElement("table");tb.className="tbl";
+  R.forEach(r=>{const tr=document.createElement("tr");r.forEach(v=>tr.appendChild(mkc("td",F(v))));tb.appendChild(tr)});w.appendChild(tb);return w},
+  soft:["BACK","→MAT"],f(i){if(i==0)go(matList());else pickMat("Store in which matrix?",k=>{mats[k]={r:R.length,c:R[0].length,d:R.map(r=>r.map(v=>String(parseFloat(v.toPrecision(12)))))};go(matList(),"Stored in Mat "+k)})},
+  nav(m){if(m=="u")mv.scrollTop-=28;if(m=="d")mv.scrollTop+=28},exit:()=>go(matList()),eq(){}}}
+function runOp(op,ks){fire(()=>{const A=ks[0]?mnum(ks[0]):null,B=ks[1]?mnum(ks[1]):null;
+ const scal=(l,v)=>go(resScreen({back:()=>go(matList()),lines:[[l,F(v)]]})),mres=(t,R)=>go(matResult(t,R));
+ if(op=="det")scal("det "+ks[0],mDet(A));else if(op=="rank")scal("rank "+ks[0],mRank(A));else if(op=="trace")scal("trace "+ks[0],mTrace(A));
+ else if(op=="norm")scal("|"+ks[0]+"|",mNorm(A));else if(op=="dot")scal(ks[0]+" · "+ks[1],mDot(A,B));else if(op=="angle")scal("angle "+ks[0]+","+ks[1],deg(mAngle(A,B)));
+ else if(op=="inv")mres(ks[0]+"⁻¹",mInv(A));else if(op=="tr")mres(ks[0]+"ᵀ",mTranspose(A));else if(op=="rref")mres("rref "+ks[0],mRref(A));
+ else if(op=="add")mres(ks[0]+" + "+ks[1],mAdd(A,B));else if(op=="sub")mres(ks[0]+" − "+ks[1],mSub(A,B));else if(op=="mul")mres(ks[0]+" × "+ks[1],mMul(A,B));else if(op=="cross")mres(ks[0]+" × "+ks[1],mCross(A,B));
+ else if(op=="scale"){const t=prompt("Multiply "+ks[0]+" by:");if(t===null)return;const k=evNum(t);if(!isFinite(k))throw new Error("Math Error");mres("k × "+ks[0],mScale(k,A))}
+ else if(op=="pow"){const t=prompt("Power n (a whole number):","2");if(t===null)return;const n=evNum(t);if(!Number.isInteger(n))throw new Error("Math Error");mres(ks[0]+"^"+n,mPow(A,n))}
+ else if(op=="id"){const t=prompt("Size n (1 to 6):","3");if(t===null)return;const n=parseInt(t);if(!(n>=1&&n<=6))throw new Error("Size must be 1 to 6");mres("Identity "+n+"×"+n,mIdentity(n))}})}
