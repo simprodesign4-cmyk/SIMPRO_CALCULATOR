@@ -2,7 +2,7 @@
 
 A scientific and graphing calculator for students, teachers and researchers. It runs in any modern web browser, installs on a phone like an app, and works with no internet once installed.
 
-**Live calculator:** https://YOUR-USERNAME.github.io/simpro-calculator/
+**Live calculator:** https://simprodesign4-cmyk.github.io/simpro-calculator/
 *(replace YOUR-USERNAME with your GitHub username)*
 
 ![SIMPRO_CALCULATOR icon](icons/icon-192.png)
@@ -109,4 +109,5 @@ The tests cover the engine, every mode, the offline and install files, colour co
 
 - SIMPRO_CALCULATOR is an independent project. Its key layout is inspired by the Casio fx-CG50, but it is not made by, affiliated with or endorsed by Casio. "Casio" is a trademark of its owner.
 - Constants use the SI definitions and the CODATA 2022 recommended values.
+- Privacy: the calculator collects no personal information. See `privacy-policy.html`.
 - **Licence:** no licence has been chosen yet, so all rights are reserved by the author. To let others reuse the code, add a `LICENSE` file.
