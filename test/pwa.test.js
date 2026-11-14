@@ -16,7 +16,8 @@ const pngSize = (f) => { const b = fs.readFileSync(path.join(root, f)); assert.e
 
 test("the manifest has what browsers need to offer installation", () => {
   assert.equal(manifest.name, "SIMPRO_CALCULATOR");
-  assert.ok(manifest.short_name.length <= 12);
+  assert.equal(manifest.short_name, "SIMPRO CALCULATOR"); // the name shown under the app icon
+  assert.ok(manifest.short_name.length <= 20, "very long names are cut short on a home screen");
   assert.equal(manifest.display, "standalone");
   assert.ok(manifest.start_url && manifest.scope);
   assert.match(manifest.theme_color, /^#[0-9a-f]{6}$/i);

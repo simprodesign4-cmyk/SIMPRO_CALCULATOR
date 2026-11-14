@@ -2,7 +2,7 @@
 
 A scientific and graphing calculator for students, teachers and researchers. It runs in any modern web browser, installs on a phone like an app, and works with no internet once installed.
 
-**Live calculator:** https://simprodesign4-cmyk.github.io/simpro-calculator/
+**Live calculator:** https://YOUR-USERNAME.github.io/simpro-calculator/
 *(replace YOUR-USERNAME with your GitHub username)*
 
 ![SIMPRO_CALCULATOR icon](icons/icon-192.png)
