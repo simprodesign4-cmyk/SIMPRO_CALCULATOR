@@ -2,7 +2,7 @@
 /* SIMPRO_CALCULATOR interface: keys, screen, graphing, menus. Needs calc.js loaded first. */
 const $=s=>document.querySelector(s);
 const CN=[["Speed of light c","c"],["Planck h","h"],["Gravity g","g"],["Gravitation G","G"],["Boltzmann k","kB"],["Avogadro N_A","NA"],["Elementary charge q","q"],["Electron mass mₑ","me"],["Permittivity ε₀","e0"],["Permeability μ₀","mu0"],["Gas constant R","R"],["Stefan-Boltzmann σ","sigma"]].map(([l,t])=>[l,"["+t+"]"]);
-const OP=[["∫ integral  integ(f,a,b)","integ("],["d/dx derivative  deriv(f,a)","deriv("],["Σ sum  sum(f,a,b)","sum("],["nPr","nPr("],["nCr","nCr("],["x!","!"],["Abs","abs("],["Int","int("],["Round","round("],["Sign","sgn("],["lcm","lcm("],["Random integer (a,b)","ranint("],["log base  logb(b,x)","logb("],["log₂","lb("],["sinh","sinh("],["cosh","cosh("],["tanh","tanh("],["sinh⁻¹","asinh("],["cosh⁻¹","acosh("],["tanh⁻¹","atanh("],["∛","cbrt("],["Arg (complex)","arg("],["Conjugate","conj("],["Re (real part)","re("],["Im (imaginary part)","im("],["e to the power","exp("],["Degree symbol °  (30°15′20″)","°"],["Minute symbol ′","′"],["Second symbol ″","″"],["Pol: radius  polr(x,y)","polr("],["Pol: angle  polt(x,y)","polt("],["Rec: x  recx(r,θ)","recx("],["Rec: y  recy(r,θ)","recy("]];
+const OP=[["Percent  (50% = 0.5)","%"],["∫ integral  integ(f,a,b)","integ("],["d/dx derivative  deriv(f,a)","deriv("],["Σ sum  sum(f,a,b)","sum("],["nPr","nPr("],["nCr","nCr("],["x!","!"],["Abs","abs("],["Int","int("],["Round","round("],["Sign","sgn("],["lcm","lcm("],["Random integer (a,b)","ranint("],["log base  logb(b,x)","logb("],["log₂","lb("],["sinh","sinh("],["cosh","cosh("],["tanh","tanh("],["sinh⁻¹","asinh("],["cosh⁻¹","acosh("],["tanh⁻¹","atanh("],["∛","cbrt("],["Arg (complex)","arg("],["Conjugate","conj("],["Re (real part)","re("],["Im (imaginary part)","im("],["e to the power","exp("],["Degree symbol °  (30°15′20″)","°"],["Minute symbol ′","′"],["Second symbol ″","″"],["Pol: radius  polr(x,y)","polr("],["Pol: angle  polt(x,y)","polt("],["Rec: x  recx(r,θ)","recx("],["Rec: y  recy(r,θ)","recy("]];
 // [face, label above (orange; swaps with face when SHIFT is on), action, shift action, alpha letter, class]
 const FK=[["F1","Trace","!f1"],["F2","Zoom","!f2"],["F3","V-Window","!f3"],["F4","Sketch","!f4"],["F5","G-Solv","!f5"],["F6","G⇔T","!f6"]];
 const TOP=[
@@ -12,7 +12,7 @@ const TOP=[
 ["a b/c","CONV","÷","!conv"],["S⇔D","▶DMS","!sd","!dms"],["(","","(","","F"],[")","",")","","M"],[",","",",","","y"],["→","","!sto"]];
 const NUM=[
 ["7","CONST","7","!const"],["8","Ran#","8","rand()"],["9","gcd","9","gcd("],["DEL","UNDO","!del","!undo","","blue"],["AC","OFF","!ac","!off","","blue"],
-["4","CATALOG","4","!optn"],["5","FORMAT","5","!fmt"],["6","","6"],["×","","×"],["÷","","÷"],
+["4","CATALOG","4","!optn"],["5","FORMAT","5","!fmt"],["6","","6"],["×","","×"],["÷","%","÷","%"],
 ["1","","1"],["2","","2"],["3","","3"],["+","","+"],["−","","−"],
 ["0","i","0","i"],["•","=",".","="],["×10ˣ","π","E","π","","sm"],["(−)","Ans","−","Ans","","sm"],["EXE","","!eq","","","exe"]];
 let expr="",pos=0,shift=false,alpha=false,sto=false,done=false,sd=false,dmsOut=false,mixed=false,tsz=0,lastV=0,hist=[],hi=-1,off=false,mode="run",undo=[];

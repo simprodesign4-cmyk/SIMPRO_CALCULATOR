@@ -2,7 +2,7 @@
 /* SIMPRO_CALCULATOR service worker: keeps a copy of the app so it opens with no internet.
    Online it always fetches the newest files first; offline it uses the saved copy.
    Raise the number in CACHE when you publish a new version. */
-const CACHE="simpro-calculator-v4";
+const CACHE="simpro-calculator-v5";
 const ASSETS=["./","index.html","style.css","calc.js","solvers.js","basen.js","matrix.js","dist.js","ratio.js","ineq.js","sheet.js","ui.js","modes.js","pwa.js",
  "manifest.webmanifest","privacy-policy.html","icons/icon-192.png","icons/icon-512.png","icons/icon-maskable-512.png","icons/apple-touch-icon.png","icons/favicon.svg"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()))});
