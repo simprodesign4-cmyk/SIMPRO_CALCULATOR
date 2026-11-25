@@ -118,9 +118,9 @@ function parse(s){const t=lex(s);let p=0;
   if(k.k==="num"){if(k.dms){const ps=x=>x===undefined?new Q(0n):/\./.test(x)?parseFloat(x):new Q(BigInt(x));return{t:"lit",v:add(ps(k.dms[0]),add(div(ps(k.dms[1]),new Q(60n)),div(ps(k.dms[2]),new Q(3600n))))}}if(!k.e&&!k.v.includes("."))return{t:"lit",v:new Q(BigInt(k.v))};return{t:"lit",v:parseFloat(k.v+(k.e?k.e.replace("E","e").replace("−","-"):""))}}
   if(k.k==="const")return{t:"const",v:k.v};
   if(k.k==="sym")return{t:"lit",v:k.v==="π"?Math.PI:Math.E};
-  if(k.k==="op"&&k.v==="("){const e=addsub();if(!isOp(")"))err(SYN);p++;return e}
+  if(k.k==="op"&&k.v==="("){const e=addsub();if(isOp(")"))p++;else if(p<t.length)err(SYN);return e} // a bracket still open at the very end closes itself
   if(k.k==="id"){const n=k.v;
-   if(isOp("(")&&(FN[n]||LAZY.has(n))){p++;const args=[];if(!isOp(")")){do{args.push(addsub())}while(isOp(",")&&++p)}if(!isOp(")"))err(SYN);p++;return{t:"fn",n,args}}
+   if(isOp("(")&&(FN[n]||LAZY.has(n))){p++;const args=[];if(!isOp(")")){do{args.push(addsub())}while(isOp(",")&&++p)}if(isOp(")"))p++;else if(p<t.length)err(SYN);return{t:"fn",n,args}}
    if(n==="Ans")return{t:"ans"};
    if(!/^[A-FMxyi]+$/.test(n))err(SYN);
    const vs=[...n].map(c=>c==="i"?{t:"lit",v:new Cx(0,1)}:{t:"var",n:c});return vs.reduce((a,b)=>({t:"bin",o:"*",a,b}))}

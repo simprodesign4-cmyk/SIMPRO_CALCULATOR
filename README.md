@@ -25,7 +25,7 @@ The key layout follows the style of a Casio fx-CG50 graphing calculator, in the 
 ## Using it
 
 1. Open the live address in a browser.
-2. Type with the on-screen keys or your keyboard, and press **EXE** (Enter).
+2. Type with the on-screen keys or your keyboard, and press **=** (Enter).
 3. **SHIFT** (Alt+S) switches on the orange functions above the keys. **ALPHA** (Alt+A) types letters.
 4. **MENU** opens the modes. **EXIT** goes back. Press **?** for built-in help.
 
@@ -33,8 +33,8 @@ The key layout follows the style of a Casio fx-CG50 graphing calculator, in the 
 
 | Problem | Keys | Answer |
 |---|---|---|
-| Order of operations | `2` `+` `3` `×` `4` **EXE** | 14 |
-| Exact fraction | `1÷3+1÷6` **EXE**, then **S⇔D** | 0.5, then 1/2 |
+| Order of operations | `2` `+` `3` `×` `4` **=** | 14 |
+| Exact fraction | `1÷3+1÷6` **=**, then **S⇔D** | 0.5, then 1/2 |
 | Complex number | `√(−4)` (SHIFT then x²) | 2i |
 | Temperature | `100`, SHIFT **a b/c** (CONV), Temperature, °C, °F | 212 |
 | Graph | `x^2` using **X,θ,T**, then **F6** | a parabola |

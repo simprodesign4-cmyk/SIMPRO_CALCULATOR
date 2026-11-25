@@ -125,7 +125,8 @@ test("errors are raised, not shown as numbers", () => {
   assert.throws(() => calc("ln(0)"), /Math Error/);
   assert.throws(() => calc("(−3)!"), /Math Error/);
   assert.throws(() => calc("2+"), /Syntax Error/);
-  assert.throws(() => calc("(1+2"), /Syntax Error/);
+  assert.throws(() => calc("(1+2))"), /Syntax Error/);
+  assert.throws(() => calc("(1+2)3 4)"), /Syntax Error/);
   assert.throws(() => calc("foo(2)"), /Syntax Error/);
   assert.throws(() => calc("3 4 )"), /Syntax Error/);
   assert.throws(() => calc(""), /Syntax Error/);
@@ -243,4 +244,31 @@ test("mixed fractions", () => {
   assert.equal(fmtExact(ev("7÷3"), false), "7/3");
   assert.equal(fmtExact(ev("2.75"), true), "2 3/4");
   assert.equal(fmtExact(ev("4÷2"), true), "2");
+});
+
+test("a bracket that is still open at the end closes itself", () => {
+  assert.equal(calc("(1+2"), "3");
+  assert.equal(calc("sqrt(16"), "4");
+  assert.equal(calc("sin(30"), "0.5");
+  assert.equal(calc("2×(3+4"), "14");
+  assert.equal(calc("sqrt(sqrt(81"), "3");
+  assert.equal(calc("cbrt(27"), "3");
+  assert.equal(calc("root(27,3"), "3");
+  assert.equal(calc("integ(x^2,0,3"), "9");
+  assert.equal(calc("nCr(5,2"), "10");
+  assert.throws(() => calc("sqrt("), /Syntax Error/);
+  assert.throws(() => calc("(1+2))"), /Syntax Error/);
+});
+
+test("square roots and cube roots", () => {
+  assert.equal(calc("sqrt(16)"), "4");
+  assert.equal(calc("sqrt(2)"), "1.41421356237");
+  assert.equal(calc("sqrt(9÷16)"), "0.75");
+  assert.equal(calc("sqrt(−4)"), "2i");
+  assert.equal(calc("cbrt(27)"), "3");
+  assert.equal(calc("cbrt(−8)"), "-2");
+  assert.equal(calc("cbrt(2)"), "1.25992104989");
+  assert.equal(calc("root(32,5)"), "2");
+  assert.equal(calc("2sqrt(9)"), "6");
+  assert.equal(calc("sqrt(16)+cbrt(8)"), "6");
 });

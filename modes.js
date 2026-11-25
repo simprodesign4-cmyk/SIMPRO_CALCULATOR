@@ -14,7 +14,7 @@ function paint(){if(!cur)return;const st=mv.scrollTop;mv.innerHTML="";mv.appendC
 function fire(fn){try{fn()}catch(e){say(e.message)}}
 function go(s,info){cur=s;say(info||"");paint()}
 function modeKey(a){if(!cur)return false;
- if(a[0]!="!"){cur.ins&&fire(()=>cur.ins(a));paint();return true}
+ if(a.length<2||a[0]!="!"){cur.ins&&fire(()=>cur.ins(a));paint();return true}
  const m={"!l":"l","!r":"r","!u":"u","!d":"d"}[a];
  if(m){cur.nav&&cur.nav(m);paint();return true}
  if(/^!f[1-6]$/.test(a)){const i=+a[2]-1;if(cur.f&&(cur.soft||[])[i])fire(()=>cur.f(i));paint();return true}
